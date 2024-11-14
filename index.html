@@ -145,8 +145,18 @@
     </div>
 
     <script>
-        let tg = window.Telegram.WebApp;
-        tg.expand();
+        // Initialize Telegram WebApp safely
+        let tg = window.Telegram?.WebApp || {
+            expand: () => {},
+            showAlert: (text) => alert(text)
+        };
+
+        // Try to expand the WebApp if available
+        try {
+            tg.expand();
+        } catch (e) {
+            console.log('Running outside of Telegram WebApp');
+        }
 
         class Card {
             constructor(suit, value, display) {
@@ -175,6 +185,8 @@
                 this.playedCards = [];
                 this.currentPlayer = 0;
                 this.isGameStarted = false;
+                this.lastPlayedBy = -1;
+                this.consecutivePasses = 0;
             }
 
             createDeck() {
@@ -241,6 +253,8 @@
             }
 
             toggleCardSelection(card, element) {
+                if (!this.isGameStarted || this.currentPlayer !== 0) return;
+
                 if (this.selectedCards.has(card)) {
                     this.selectedCards.delete(card);
                     element.classList.remove('selected');
@@ -279,6 +293,10 @@
                 this.playedCards.forEach(card => {
                     playedCardsArea.appendChild(this.createCardElement(card));
                 });
+
+                // 更新按钮状态
+                document.getElementById('play-button').disabled = !this.isGameStarted || this.currentPlayer !== 0;
+                document.getElementById('pass-button').disabled = !this.isGameStarted || this.currentPlayer !== 0 || this.lastPlayedBy === -1;
             }
 
             setupEventListeners() {
@@ -295,9 +313,39 @@
 
                 document.getElementById('start-button').disabled = true;
                 document.getElementById('play-button').disabled = false;
-                document.getElementById('pass-button').disabled = false;
+                document.getElementById('pass-button').disabled = true;
 
                 tg.showAlert('游戏开始！');
+            }
+
+            simulateAIPlay() {
+                setTimeout(() => {
+                    if (this.currentPlayer !== 0) {
+                        // Simple AI: just play the lowest value card
+                        const aiHand = this.playerHands[this.currentPlayer];
+                        if (aiHand.length > 0) {
+                            const cardToPlay = [aiHand[aiHand.length - 1]];
+                            this.playedCards = cardToPlay;
+                            aiHand.pop();
+                            this.lastPlayedBy = this.currentPlayer;
+                            this.consecutivePasses = 0;
+
+                            if (aiHand.length === 0) {
+                                tg.showAlert('电脑赢了！');
+                                this.resetGame();
+                                return;
+                            }
+                        }
+
+                        this.currentPlayer = (this.currentPlayer + 1) % 3;
+                        this.updateDisplay();
+
+                        // Continue AI turns if it's still not player's turn
+                        if (this.currentPlayer !== 0) {
+                            this.simulateAIPlay();
+                        }
+                    }
+                }, 1000);
             }
 
             playCards() {
@@ -306,7 +354,7 @@
                     return;
                 }
 
-                // 移除出的牌
+                // Move selected cards to played cards
                 const cardsToPlay = Array.from(this.selectedCards);
                 for (let card of cardsToPlay) {
                     const index = this.playerHands[0].indexOf(card);
@@ -317,6 +365,8 @@
 
                 this.playedCards = cardsToPlay;
                 this.selectedCards.clear();
+                this.lastPlayedBy = 0;
+                this.consecutivePasses = 0;
 
                 if (this.playerHands[0].length === 0) {
                     tg.showAlert('恭喜你赢了！');
@@ -326,12 +376,30 @@
 
                 this.currentPlayer = (this.currentPlayer + 1) % 3;
                 this.updateDisplay();
+
+                // Trigger AI moves
+                if (this.currentPlayer !== 0) {
+                    this.simulateAIPlay();
+                }
             }
 
             passTurn() {
                 this.selectedCards.clear();
+                this.consecutivePasses++;
+
+                if (this.consecutivePasses >= 2) {
+                    this.playedCards = [];
+                    this.lastPlayedBy = -1;
+                    this.consecutivePasses = 0;
+                }
+
                 this.currentPlayer = (this.currentPlayer + 1) % 3;
                 this.updateDisplay();
+
+                // Trigger AI moves
+                if (this.currentPlayer !== 0) {
+                    this.simulateAIPlay();
+                }
             }
 
             resetGame() {
@@ -343,6 +411,7 @@
             }
         }
 
+        // Start the game when the page loads
         const game = new Game();
     </script>
 </body>
