@@ -2,10 +2,28 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>斗地主</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/telegram-web-app/6.7.0/telegram-web-app.min.js"></script>
     <style>
+        /* 强制横屏 */
+        @media screen and (orientation: portrait) {
+            html {
+                transform: rotate(-90deg);
+                transform-origin: left top;
+                width: 100vh;
+                height: 100vw;
+                position: absolute;
+                top: 100%;
+                left: 0;
+            }
+            body {
+                width: 100vh;
+                height: 100vw;
+            }
+        }
+
+        /* 基础样式 */
         * {
             margin: 0;
             padding: 0;
@@ -16,25 +34,12 @@
             touch-action: none;
         }
 
-        html {
-            height: 100%;
-            width: 100%;
-            overflow: hidden;
-        }
-
         body {
-            margin: 0;
-            padding: 0;
             background-color: #076324;
             color: white;
             font-family: Arial, sans-serif;
-            height: 100%;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
             overflow: hidden;
             position: fixed;
-            touch-action: none;
         }
 
         #game-container {
@@ -42,19 +47,20 @@
             flex-direction: column;
             height: 100%;
             width: 100%;
-            padding: 5px;
+            padding: 2px;
             box-sizing: border-box;
-            touch-action: none;
         }
 
+        /* 地主牌区域 */
         #landlord-area {
-            height: 12vh;
+            height: 10vh;
             display: flex;
             justify-content: center;
             gap: 2px;
             padding: 2px;
         }
 
+        /* 玩家区域 */
         #players-area {
             flex: 1;
             display: flex;
@@ -69,44 +75,40 @@
             flex-direction: column;
             align-items: center;
             gap: 1vh;
-            width: 25vw;
+            width: 20vw;
             height: 100%;
         }
 
-        .player-cards {
+        /* 出牌区域样式 - 修改为重叠效果 */
+        #left-played-cards,
+        #right-played-cards,
+        #played-cards {
             display: flex;
-            flex-wrap: wrap;
-            gap: 1px;
             justify-content: center;
             align-items: center;
             min-height: 10vh;
             width: 100%;
+            gap: 1px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 3px;
             padding: 2px;
-            box-sizing: border-box;
+            position: relative;
         }
 
-        .timer {
-            background: rgba(0, 0, 0, 0.5);
-            border-radius: 50%;
-            width: 4vh;
-            height: 4vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 1.8vh;
-            margin-top: 0.5vh;
+        /* 重叠卡牌样式 */
+        #left-played-cards .card,
+        #right-played-cards .card,
+        #played-cards .card {
+            position: absolute;
+            width: 4.5vh;
+            height: 6.5vh;
+            font-size: 1.2vh;
+            margin-left: -2vh; /* 负边距创造重叠效果 */
         }
 
-        #play-area {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            max-width: 50%;
-        }
-
+        /* 手牌区域 */
         #hand-area {
-            height: 18vh;
+            height: 15vh;
             display: flex;
             justify-content: center;
             gap: 1px;
@@ -121,36 +123,22 @@
             display: none;
         }
 
-        #left-played-cards, 
-        #right-played-cards {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            align-items: center;
-            min-height: 10vh;
-            width: 100%;
-            gap: 1px;
-            background: rgba(0, 0, 0, 0.1);
-            border-radius: 3px;
-            padding: 2px;
-        }
-
+        /* 基础卡牌样式 */
         .card {
-            width: 7vh;
-            height: 10vh;
-            min-width: 35px;
+            width: 5.5vh;
+            height: 8vh;
             background: white;
             border-radius: 3px;
             border: 1px solid #000;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 2px;
+            padding: 1px;
             cursor: pointer;
             user-select: none;
             position: relative;
             transition: transform 0.2s;
-            font-size: 1.8vh;
+            font-size: 1.4vh;
             box-sizing: border-box;
             touch-action: manipulation;
         }
@@ -167,24 +155,25 @@
             color: black;
         }
 
+        /* 控制按钮 */
         #controls {
             height: 8vh;
             display: flex;
             justify-content: center;
             gap: 5px;
-            padding: 5px;
+            padding: 2px;
             margin-bottom: env(safe-area-inset-bottom, 0px);
         }
 
         .button {
-            padding: 1vh 2vh;
+            padding: 0.8vh 1.6vh;
             border: none;
             border-radius: 3px;
             background: #4CAF50;
             color: white;
-            font-size: 1.8vh;
+            font-size: 1.4vh;
             cursor: pointer;
-            min-width: 15vw;
+            min-width: 12vw;
             touch-action: manipulation;
         }
 
@@ -193,141 +182,37 @@
             cursor: not-allowed;
         }
 
+        /* 状态样式 */
         .player-status {
             background: rgba(0, 0, 0, 0.3);
-            padding: 0.8vh;
+            padding: 0.5vh;
             border-radius: 3px;
             text-align: center;
-            font-size: 1.8vh;
+            font-size: 1.4vh;
         }
 
         .active-player {
             box-shadow: 0 0 10px #FFD700;
         }
 
-        @media screen and (orientation: landscape) {
-            body {
-                transform-origin: top center;
-                transform: scale(0.85);
-                width: 100vw;
-                height: 100vh;
-                overflow: hidden;
-                position: fixed;
-                touch-action: none;
-            }
-
-            #game-container {
-                max-height: 100vh;
-                padding: 2px;
-            }
-
-            #landlord-area {
-                height: 10vh;
-            }
-
-            #players-area {
-                height: 45vh;
-            }
-
-            .player-section {
-                width: 20vw;
-            }
-
-            #hand-area {
-                height: 15vh;
-            }
-
-            #controls {
-                height: 8vh;
-                padding: 2px;
-            }
-
-            .card {
-                width: 5.5vh;
-                height: 8vh;
-                font-size: 1.4vh;
-                padding: 1px;
-            }
-
-            #left-played-cards .card, 
-            #right-played-cards .card,
-            #played-cards .card {
-                width: 4.5vh;
-                height: 6.5vh;
-                font-size: 1.2vh;
-            }
-
-            .button {
-                padding: 0.8vh 1.6vh;
-                font-size: 1.4vh;
-                min-width: 12vw;
-            }
-
-            .player-status {
-                font-size: 1.4vh;
-                padding: 0.5vh;
-            }
-
-            .timer {
-                width: 3vh;
-                height: 3vh;
-                font-size: 1.4vh;
-            }
-
-            #play-area {
-                max-width: 40%;
-            }
+        .timer {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 50%;
+            width: 3vh;
+            height: 3vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.4vh;
+            margin-top: 0.5vh;
         }
 
-        @media screen and (orientation: portrait) {
-            body {
-                transform: none;
-                position: fixed;
-                width: 100vw;
-                height: 100vh;
-                overflow: hidden;
-            }
-        }
-
-        @viewport {
-            width: device-width;
-            zoom: 1.0;
-            min-zoom: 1.0;
-            max-zoom: 1.0;
-            user-zoom: fixed;
-        }
-
-        @media screen and (max-height: 600px) {
-            .card {
-                width: 5vh;
-                height: 7.5vh;
-                font-size: 1.3vh;
-            }
-
-            #left-played-cards .card, 
-            #right-played-cards .card,
-            #played-cards .card {
-                width: 4vh;
-                height: 6vh;
-                font-size: 1.1vh;
-            }
-
-            .button {
-                font-size: 1.3vh;
-                padding: 0.6vh 1.2vh;
-            }
-
-            #landlord-area {
-                height: 9vh;
-            }
-
-            #hand-area {
-                height: 14vh;
-            }
-
-            #controls {
-                height: 7vh;
-            }
+        #play-area {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            max-width: 40%;
         }
     </style>
 </head>
@@ -518,60 +403,58 @@
             }
 
             updateDisplay() {
-                // 显示地主牌
-                const landlordArea = document.getElementById('landlord-area');
-                landlordArea.innerHTML = '';
-                if (this.isGameStarted) {
-                    this.landlordCards.forEach(card => {
-                        landlordArea.appendChild(this.createCardElement(card));
+                updateDisplay() {
+                    // 显示地主牌
+                    const landlordArea = document.getElementById('landlord-area');
+                    landlordArea.innerHTML = '';
+                    if (this.isGameStarted) {
+                        this.landlordCards.forEach(card => {
+                            landlordArea.appendChild(this.createCardElement(card));
+                        });
+                    }
+
+                    // 更新玩家手牌
+                    const handArea = document.getElementById('hand-area');
+                    handArea.innerHTML = '';
+                    this.playerHands[0].forEach(card => {
+                        handArea.appendChild(this.createCardElement(card, true));
+                    });
+
+                    // 更新其他玩家状态和出牌
+                    document.getElementById('left-player').innerHTML = 
+                        `左边玩家<br>${this.playerHands[1].length}张`;
+                    document.getElementById('right-player').innerHTML = 
+                        `右边玩家<br>${this.playerHands[2].length}张`;
+
+                    // 定义更新出牌区域的辅助函数，添加重叠效果
+                    const updatePlayedCards = (container, cards) => {
+                        container.innerHTML = '';
+                        cards.forEach((card, index) => {
+                            const cardElement = this.createCardElement(card);
+                            cardElement.style.transform = `translateX(${index * 2}vh)`; // 每张牌向右偏移
+                            container.appendChild(cardElement);
+                        });
+                    };
+
+                    // 更新各玩家出牌区域
+                    updatePlayedCards(document.getElementById('left-played-cards'), this.playedCards[1]);
+                    updatePlayedCards(document.getElementById('right-played-cards'), this.playedCards[2]);
+                    updatePlayedCards(document.getElementById('played-cards'), this.playedCards[0]);
+
+                    // 更新按钮状态
+                    document.getElementById('play-button').disabled = !this.isGameStarted || this.currentPlayer !== 0;
+                    document.getElementById('pass-button').disabled = !this.isGameStarted || this.currentPlayer !== 0 || this.lastPlayedBy === -1;
+
+                    // 高亮当前玩家
+                    ['left-player', 'right-player'].forEach((id, index) => {
+                        const element = document.getElementById(id);
+                        if (this.currentPlayer === index + 1) {
+                            element.classList.add('active-player');
+                        } else {
+                            element.classList.remove('active-player');
+                        }
                     });
                 }
-
-                // 更新玩家手牌
-                const handArea = document.getElementById('hand-area');
-                handArea.innerHTML = '';
-                this.playerHands[0].forEach(card => {
-                    handArea.appendChild(this.createCardElement(card, true));
-                });
-
-                // 更新其他玩家状态和出牌
-                document.getElementById('left-player').innerHTML = 
-                    `左边玩家<br>${this.playerHands[1].length}张`;
-                document.getElementById('right-player').innerHTML = 
-                    `右边玩家<br>${this.playerHands[2].length}张`;
-
-                // 更新各玩家出牌区域
-                const leftPlayedCards = document.getElementById('left-played-cards');
-                const rightPlayedCards = document.getElementById('right-played-cards');
-                const playerPlayedCards = document.getElementById('played-cards');
-
-                leftPlayedCards.innerHTML = '';
-                rightPlayedCards.innerHTML = '';
-                playerPlayedCards.innerHTML = '';
-
-                this.playedCards[1].forEach(card => {
-                    leftPlayedCards.appendChild(this.createCardElement(card));
-                });
-                this.playedCards[2].forEach(card => {
-                    rightPlayedCards.appendChild(this.createCardElement(card));
-                });
-                this.playedCards[0].forEach(card => {
-                    playerPlayedCards.appendChild(this.createCardElement(card));
-                });
-
-                // 更新按钮状态
-                document.getElementById('play-button').disabled = !this.isGameStarted || this.currentPlayer !== 0;
-                document.getElementById('pass-button').disabled = !this.isGameStarted || this.currentPlayer !== 0 || this.lastPlayedBy === -1;
-
-                // 高亮当前玩家
-                ['left-player', 'right-player'].forEach((id, index) => {
-                    const element = document.getElementById(id);
-                    if (this.currentPlayer === index + 1) {
-                        element.classList.add('active-player');
-                    } else {
-                        element.classList.remove('active-player');
-                    }
-                });
             }
 
             setupEventListeners() {
