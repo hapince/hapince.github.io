@@ -62,13 +62,19 @@
             align-items: center;
             gap: 1vh;
             width: 25vw;
+            height: 100%;
         }
 
         .player-cards {
             display: flex;
+            flex-wrap: wrap;  /* 允许牌换行显示 */
             gap: 1px;
             justify-content: center;
+            align-items: center;
             min-height: 10vh;
+            width: 100%;      /* 确保宽度100% */
+            padding: 2px;     /* 添加内边距 */
+            box-sizing: border-box;
         }
 
         .timer {
@@ -102,6 +108,28 @@
             scrollbar-width: none;
             -ms-overflow-style: none;
         }
+
+            #left-played-cards, #right-played-cards {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                align-items: center;
+                min-height: 10vh;
+                width: 100%;
+                gap: 1px;
+                background: rgba(0, 0, 0, 0.1);
+                border-radius: 3px;
+                padding: 2px;
+            }
+
+            #left-played-cards .card, 
+            #right-played-cards .card,
+            #played-cards .card {
+                width: 5vh;
+                height: 7.5vh;
+                font-size: 1.5vh;
+            }
+
 
         #controls {
             height: 8vh;
@@ -179,6 +207,14 @@
 
         /* 针对小屏幕设备的优化 */
         @media screen and (max-height: 600px) {
+            #left-played-cards .card, 
+            #right-played-cards .card,
+            #played-cards .card {
+                width: 4vh;
+                height: 6vh;
+                font-size: 1.2vh;
+            }
+            
             .card {
                 width: 5.5vh;
                 height: 8vh;
