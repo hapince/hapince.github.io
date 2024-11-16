@@ -6,6 +6,20 @@
     <title>斗地主</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/telegram-web-app/6.7.0/telegram-web-app.min.js"></script>
     <style>
+        /* 强制横屏显示 */
+        @media screen and (orientation: portrait) {
+            html {
+                transform: rotate(-90deg);
+                transform-origin: left top;
+                width: 100vh;
+                height: 100vw;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                overflow-x: hidden;
+            }
+        }
+
         body {
             margin: 0;
             padding: 0;
@@ -13,23 +27,27 @@
             color: white;
             font-family: Arial, sans-serif;
             height: 100vh;
+            width: 100vw;
             display: flex;
             flex-direction: column;
+            overflow: hidden;
         }
 
         #game-container {
             display: flex;
             flex-direction: column;
             height: 100%;
-            padding: 10px;
+            width: 100%;
+            padding: 5px;
+            box-sizing: border-box;
         }
 
         #landlord-area {
-            height: 120px;
+            height: 15vh;
             display: flex;
             justify-content: center;
-            gap: 5px;
-            padding: 10px;
+            gap: 2px;
+            padding: 5px;
         }
 
         #players-area {
@@ -37,7 +55,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 20px;
+            padding: 10px;
         }
 
         #play-area {
@@ -45,43 +63,48 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            max-width: 60%;
         }
 
         #hand-area {
-            height: 150px;
+            height: 20vh;
             display: flex;
             justify-content: center;
-            gap: 5px;
-            padding: 10px;
+            gap: 2px;
+            padding: 5px;
             overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         #controls {
-            height: 50px;
+            height: 8vh;
             display: flex;
             justify-content: center;
-            gap: 10px;
-            padding: 10px;
+            gap: 5px;
+            padding: 5px;
         }
 
         .card {
-            width: 70px;
-            height: 100px;
+            width: 8vh;
+            height: 12vh;
+            min-width: 40px;
             background: white;
-            border-radius: 5px;
+            border-radius: 3px;
             border: 1px solid #000;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 5px;
+            padding: 3px;
             cursor: pointer;
             user-select: none;
             position: relative;
             transition: transform 0.2s;
+            font-size: 2vh;
+            box-sizing: border-box;
         }
 
         .card.selected {
-            transform: translateY(-20px);
+            transform: translateY(-2vh);
         }
 
         .card-red {
@@ -93,13 +116,14 @@
         }
 
         .button {
-            padding: 10px 20px;
+            padding: 1vh 2vh;
             border: none;
-            border-radius: 5px;
+            border-radius: 3px;
             background: #4CAF50;
             color: white;
-            font-size: 16px;
+            font-size: 2vh;
             cursor: pointer;
+            min-width: 15vw;
         }
 
         .button:disabled {
@@ -109,16 +133,43 @@
 
         .player-status {
             background: rgba(0, 0, 0, 0.3);
-            padding: 10px;
-            border-radius: 5px;
+            padding: 1vh;
+            border-radius: 3px;
             text-align: center;
+            font-size: 2vh;
+            width: 15vw;
         }
 
         #played-cards {
             display: flex;
-            gap: 5px;
+            gap: 2px;
             justify-content: center;
-            min-height: 110px;
+            min-height: 12vh;
+            flex-wrap: wrap;
+        }
+
+        /* 适配不同尺寸屏幕 */
+        @media screen and (max-height: 400px) {
+            .card {
+                width: 6vh;
+                height: 9vh;
+                font-size: 1.5vh;
+            }
+            
+            .button {
+                font-size: 1.5vh;
+                padding: 0.8vh 1.6vh;
+            }
+            
+            .player-status {
+                font-size: 1.5vh;
+                padding: 0.8vh;
+            }
+        }
+
+        /* 隐藏滚动条但保持功能 */
+        #hand-area::-webkit-scrollbar {
+            display: none;
         }
     </style>
 </head>
