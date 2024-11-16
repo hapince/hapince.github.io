@@ -6,14 +6,20 @@
     <title>斗地主</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/telegram-web-app/6.7.0/telegram-web-app.min.js"></script>
     <style>
-        @media screen and (orientation: portrait) {
-            body {
-                transform: none;
-                position: fixed;
-                width: 100vw;
-                height: 100vh;
-                overflow: hidden;
-            }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+            touch-action: none;
+        }
+
+        html {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
         }
 
         body {
@@ -22,12 +28,13 @@
             background-color: #076324;
             color: white;
             font-family: Arial, sans-serif;
-            height: 100vh;
-            width: 100vw;
+            height: 100%;
+            width: 100%;
             display: flex;
             flex-direction: column;
             overflow: hidden;
             position: fixed;
+            touch-action: none;
         }
 
         #game-container {
@@ -37,6 +44,7 @@
             width: 100%;
             padding: 5px;
             box-sizing: border-box;
+            touch-action: none;
         }
 
         #landlord-area {
@@ -67,13 +75,13 @@
 
         .player-cards {
             display: flex;
-            flex-wrap: wrap;  /* 允许牌换行显示 */
+            flex-wrap: wrap;
             gap: 1px;
             justify-content: center;
             align-items: center;
             min-height: 10vh;
-            width: 100%;      /* 确保宽度100% */
-            padding: 2px;     /* 添加内边距 */
+            width: 100%;
+            padding: 2px;
             box-sizing: border-box;
         }
 
@@ -109,35 +117,22 @@
             -ms-overflow-style: none;
         }
 
-            #left-played-cards, #right-played-cards {
-                display: flex;
-                flex-wrap: wrap;
-                justify-content: center;
-                align-items: center;
-                min-height: 10vh;
-                width: 100%;
-                gap: 1px;
-                background: rgba(0, 0, 0, 0.1);
-                border-radius: 3px;
-                padding: 2px;
-            }
+        #hand-area::-webkit-scrollbar {
+            display: none;
+        }
 
-            #left-played-cards .card, 
-            #right-played-cards .card,
-            #played-cards .card {
-                width: 5vh;
-                height: 7.5vh;
-                font-size: 1.5vh;
-            }
-
-
-        #controls {
-            height: 8vh;
+        #left-played-cards, 
+        #right-played-cards {
             display: flex;
+            flex-wrap: wrap;
             justify-content: center;
-            gap: 5px;
-            padding: 5px;
-            margin-bottom: env(safe-area-inset-bottom, 0px);
+            align-items: center;
+            min-height: 10vh;
+            width: 100%;
+            gap: 1px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 3px;
+            padding: 2px;
         }
 
         .card {
@@ -172,6 +167,15 @@
             color: black;
         }
 
+        #controls {
+            height: 8vh;
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            padding: 5px;
+            margin-bottom: env(safe-area-inset-bottom, 0px);
+        }
+
         .button {
             padding: 1vh 2vh;
             border: none;
@@ -201,35 +205,67 @@
             box-shadow: 0 0 10px #FFD700;
         }
 
-        #hand-area::-webkit-scrollbar {
-            display: none;
-        }
-
-        /* 针对小屏幕设备的优化 */
-        @media screen and (max-height: 600px) {
-            #left-played-cards .card, 
-            #right-played-cards .card,
-            #played-cards .card {
-                width: 4vh;
-                height: 6vh;
-                font-size: 1.2vh;
+        @media screen and (orientation: landscape) {
+            body {
+                transform-origin: top center;
+                transform: scale(0.85);
+                width: 100vw;
+                height: 100vh;
+                overflow: hidden;
+                position: fixed;
+                touch-action: none;
             }
-            
+
+            #game-container {
+                max-height: 100vh;
+                padding: 2px;
+            }
+
+            #landlord-area {
+                height: 10vh;
+            }
+
+            #players-area {
+                height: 45vh;
+            }
+
+            .player-section {
+                width: 20vw;
+            }
+
+            #hand-area {
+                height: 15vh;
+            }
+
+            #controls {
+                height: 8vh;
+                padding: 2px;
+            }
+
             .card {
                 width: 5.5vh;
                 height: 8vh;
-                font-size: 1.5vh;
+                font-size: 1.4vh;
                 padding: 1px;
             }
-            
-            .button {
-                font-size: 1.5vh;
-                padding: 0.8vh 1.6vh;
+
+            #left-played-cards .card, 
+            #right-played-cards .card,
+            #played-cards .card {
+                width: 4.5vh;
+                height: 6.5vh;
+                font-size: 1.2vh;
             }
-            
+
+            .button {
+                padding: 0.8vh 1.6vh;
+                font-size: 1.4vh;
+                min-width: 12vw;
+            }
+
             .player-status {
                 font-size: 1.4vh;
-                padding: 0.6vh;
+                padding: 0.5vh;
             }
 
             .timer {
@@ -237,37 +273,60 @@
                 height: 3vh;
                 font-size: 1.4vh;
             }
+
+            #play-area {
+                max-width: 40%;
+            }
         }
 
-        /* 针对超小屏幕设备的优化 */
-        @media screen and (max-height: 400px) {
+        @media screen and (orientation: portrait) {
+            body {
+                transform: none;
+                position: fixed;
+                width: 100vw;
+                height: 100vh;
+                overflow: hidden;
+            }
+        }
+
+        @viewport {
+            width: device-width;
+            zoom: 1.0;
+            min-zoom: 1.0;
+            max-zoom: 1.0;
+            user-zoom: fixed;
+        }
+
+        @media screen and (max-height: 600px) {
             .card {
                 width: 5vh;
-                height: 7vh;
+                height: 7.5vh;
                 font-size: 1.3vh;
             }
-            
+
+            #left-played-cards .card, 
+            #right-played-cards .card,
+            #played-cards .card {
+                width: 4vh;
+                height: 6vh;
+                font-size: 1.1vh;
+            }
+
+            .button {
+                font-size: 1.3vh;
+                padding: 0.6vh 1.2vh;
+            }
+
             #landlord-area {
-                height: 10vh;
+                height: 9vh;
             }
-            
+
             #hand-area {
-                height: 15vh;
+                height: 14vh;
             }
-            
+
             #controls {
                 height: 7vh;
-            }
-        }
-
-        /* 针对宽屏幕的优化 */
-        @media screen and (min-width: 768px) {
-            .card {
-                min-width: 45px;
-            }
-            
-            .button {
-                min-width: 120px;
             }
         }
     </style>
