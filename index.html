@@ -6,7 +6,6 @@
     <title>斗地主</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/telegram-web-app/6.7.0/telegram-web-app.min.js"></script>
     <style>
-        /* 强制横屏显示 */
         @media screen and (orientation: portrait) {
             html {
                 transform: rotate(-90deg);
@@ -56,6 +55,34 @@
             justify-content: space-between;
             align-items: center;
             padding: 10px;
+            position: relative;
+        }
+
+        .player-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1vh;
+            width: 25vw;
+        }
+
+        .player-cards {
+            display: flex;
+            gap: 2px;
+            justify-content: center;
+            min-height: 12vh;
+        }
+
+        .timer {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 50%;
+            width: 4vh;
+            height: 4vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2vh;
+            margin-top: 1vh;
         }
 
         #play-area {
@@ -63,7 +90,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            max-width: 60%;
+            max-width: 50%;
         }
 
         #hand-area {
@@ -137,18 +164,16 @@
             border-radius: 3px;
             text-align: center;
             font-size: 2vh;
-            width: 15vw;
         }
 
-        #played-cards {
-            display: flex;
-            gap: 2px;
-            justify-content: center;
-            min-height: 12vh;
-            flex-wrap: wrap;
+        .active-player {
+            box-shadow: 0 0 10px #FFD700;
         }
 
-        /* 适配不同尺寸屏幕 */
+        #hand-area::-webkit-scrollbar {
+            display: none;
+        }
+
         @media screen and (max-height: 400px) {
             .card {
                 width: 6vh;
@@ -165,11 +190,12 @@
                 font-size: 1.5vh;
                 padding: 0.8vh;
             }
-        }
 
-        /* 隐藏滚动条但保持功能 */
-        #hand-area::-webkit-scrollbar {
-            display: none;
+            .timer {
+                width: 3vh;
+                height: 3vh;
+                font-size: 1.5vh;
+            }
         }
     </style>
 </head>
