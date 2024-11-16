@@ -7,15 +7,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/telegram-web-app/6.7.0/telegram-web-app.min.js"></script>
     <style>
         @media screen and (orientation: portrait) {
-            html {
-                transform: rotate(-90deg);
-                transform-origin: left top;
-                width: 100vh;
-                height: 100vw;
-                position: absolute;
-                top: 100%;
-                left: 0;
-                overflow-x: hidden;
+            body {
+                transform: none;
+                position: fixed;
+                width: 100vw;
+                height: 100vh;
+                overflow: hidden;
             }
         }
 
@@ -30,6 +27,7 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            position: fixed;
         }
 
         #game-container {
@@ -42,11 +40,11 @@
         }
 
         #landlord-area {
-            height: 15vh;
+            height: 12vh;
             display: flex;
             justify-content: center;
             gap: 2px;
-            padding: 5px;
+            padding: 2px;
         }
 
         #players-area {
@@ -54,7 +52,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px;
+            padding: 5px;
             position: relative;
         }
 
@@ -68,9 +66,9 @@
 
         .player-cards {
             display: flex;
-            gap: 2px;
+            gap: 1px;
             justify-content: center;
-            min-height: 12vh;
+            min-height: 10vh;
         }
 
         .timer {
@@ -81,8 +79,8 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 2vh;
-            margin-top: 1vh;
+            font-size: 1.8vh;
+            margin-top: 0.5vh;
         }
 
         #play-area {
@@ -94,13 +92,15 @@
         }
 
         #hand-area {
-            height: 20vh;
+            height: 18vh;
             display: flex;
             justify-content: center;
-            gap: 2px;
-            padding: 5px;
+            gap: 1px;
+            padding: 2px;
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
         }
 
         #controls {
@@ -109,29 +109,31 @@
             justify-content: center;
             gap: 5px;
             padding: 5px;
+            margin-bottom: env(safe-area-inset-bottom, 0px);
         }
 
         .card {
-            width: 8vh;
-            height: 12vh;
-            min-width: 40px;
+            width: 7vh;
+            height: 10vh;
+            min-width: 35px;
             background: white;
             border-radius: 3px;
             border: 1px solid #000;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 3px;
+            padding: 2px;
             cursor: pointer;
             user-select: none;
             position: relative;
             transition: transform 0.2s;
-            font-size: 2vh;
+            font-size: 1.8vh;
             box-sizing: border-box;
+            touch-action: manipulation;
         }
 
         .card.selected {
-            transform: translateY(-2vh);
+            transform: translateY(-1.5vh);
         }
 
         .card-red {
@@ -148,9 +150,10 @@
             border-radius: 3px;
             background: #4CAF50;
             color: white;
-            font-size: 2vh;
+            font-size: 1.8vh;
             cursor: pointer;
             min-width: 15vw;
+            touch-action: manipulation;
         }
 
         .button:disabled {
@@ -160,10 +163,10 @@
 
         .player-status {
             background: rgba(0, 0, 0, 0.3);
-            padding: 1vh;
+            padding: 0.8vh;
             border-radius: 3px;
             text-align: center;
-            font-size: 2vh;
+            font-size: 1.8vh;
         }
 
         .active-player {
@@ -174,11 +177,13 @@
             display: none;
         }
 
-        @media screen and (max-height: 400px) {
+        /* 针对小屏幕设备的优化 */
+        @media screen and (max-height: 600px) {
             .card {
-                width: 6vh;
-                height: 9vh;
+                width: 5.5vh;
+                height: 8vh;
                 font-size: 1.5vh;
+                padding: 1px;
             }
             
             .button {
@@ -187,14 +192,46 @@
             }
             
             .player-status {
-                font-size: 1.5vh;
-                padding: 0.8vh;
+                font-size: 1.4vh;
+                padding: 0.6vh;
             }
 
             .timer {
                 width: 3vh;
                 height: 3vh;
-                font-size: 1.5vh;
+                font-size: 1.4vh;
+            }
+        }
+
+        /* 针对超小屏幕设备的优化 */
+        @media screen and (max-height: 400px) {
+            .card {
+                width: 5vh;
+                height: 7vh;
+                font-size: 1.3vh;
+            }
+            
+            #landlord-area {
+                height: 10vh;
+            }
+            
+            #hand-area {
+                height: 15vh;
+            }
+            
+            #controls {
+                height: 7vh;
+            }
+        }
+
+        /* 针对宽屏幕的优化 */
+        @media screen and (min-width: 768px) {
+            .card {
+                min-width: 45px;
+            }
+            
+            .button {
+                min-width: 120px;
             }
         }
     </style>
