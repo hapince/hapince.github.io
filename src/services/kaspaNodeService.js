@@ -1,38 +1,41 @@
-interface TelegramUser {
-    id: number;
-    username?: string;
-    first_name?: string;
-  }
-  
-  export class TelegramService {
-    private webApp: any;
-  
-    constructor() {
-      this.webApp = (window as any).Telegram?.WebApp;
-    }
-  
-    isInitialized(): boolean {
-      return !!this.webApp;
-    }
-  
-    initialize() {
-      if (this.webApp) {
-        this.webApp.ready();
-        this.webApp.expand();
-      }
-    }
-  
-    getUserData(): TelegramUser | null {
-      return this.webApp?.initDataUnsafe?.user || null;
-    }
-  
-    sendData(data: any) {
-      this.webApp?.sendData(JSON.stringify(data));
-    }
-  
-    showAlert(message: string) {
-      this.webApp?.showAlert(message);
+// src/services/kaspaNodeService.js
+import axios from 'axios';
+
+export class KaspaNodeService {
+  static KASPA_RPC_URL = 'https://kaspa-rpc-endpoint.com';
+
+  static async getAddressBalance(address) {
+    try {
+      const response = await axios.post(this.KASPA_RPC_URL, {
+        jsonrpc: '2.0',
+        method: 'getBalanceByAddress',
+        params: [address]
+      });
+      
+      return response.data.result.balance;
+    } catch (error) {
+      console.error('获取地址余额失败', error);
+      throw error;
     }
   }
-  
-  export const telegramService = new TelegramService();
+
+  static async sendTransaction(fromAddress, toAddress, amount, privateKey) {
+    try {
+      const response = await axios.post(this.KASPA_RPC_URL, {
+        jsonrpc: '2.0',
+        method: 'sendTransaction',
+        params: [{
+          from: fromAddress,
+          to: toAddress,
+          amount: amount,
+          privateKey: privateKey
+        }]
+      });
+      
+      return response.data.result.txHash;
+    } catch (error) {
+      console.error('发送交易失败', error);
+      throw error;
+    }
+  }
+}

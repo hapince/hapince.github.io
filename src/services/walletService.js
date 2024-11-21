@@ -1,66 +1,38 @@
-import axios from 'axios';
+// src/services/walletService.js
+import { generateMnemonic, validateMnemonic } from 'kaspa-wallet-lib';
+import { derivePrivateKey, getPublicAddress } from './cryptoUtils';
 
-const API_BASE_URL = 'https://your-backend-api.com';
-
-export class APIService {
-  private token: string | null = null;
-
-  async authenticate(userId: number, username: string) {
-    try {
-      const response = await axios.post(`${API_BASE_URL}/auth`, {
-        user_id: userId,
-        username
-      });
-      this.token = response.data.token;
-      localStorage.setItem('game_token', this.token);
-      return response.data;
-    } catch (error) {
-      console.error('Authentication failed', error);
-      throw error;
-    }
+export class WalletService {
+  static createNewWallet() {
+    // 生成助记词
+    const mnemonic = generateMnemonic();
+    
+    // 从助记词推导私钥
+    const privateKey = derivePrivateKey(mnemonic);
+    
+    // 获取公共地址
+    const address = getPublicAddress(privateKey);
+    
+    return {
+      mnemonic,
+      privateKey,
+      address
+    };
   }
 
-  async findMatch() {
-    try {
-      const response = await axios.post(`${API_BASE_URL}/matchmaking`, 
-        {},
-        {
-          headers: { 
-            'Authorization': this.token || localStorage.getItem('game_token')
-          }
-        }
-      );
-      return response.data;
-    } catch (error) {
-      console.error('Matchmaking failed', error);
-      throw error;
+  static importWalletFromMnemonic(mnemonic) {
+    // 验证助记词
+    if (!validateMnemonic(mnemonic)) {
+      throw new Error('无效的助记词');
     }
-  }
-
-  async saveScore(score: number) {
-    try {
-      await axios.post(`${API_BASE_URL}/score`, 
-        { score },
-        {
-          headers: { 
-            'Authorization': this.token || localStorage.getItem('game_token')
-          }
-        }
-      );
-    } catch (error) {
-      console.error('Score saving failed', error);
-    }
-  }
-
-  async getLeaderboard() {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/leaderboard`);
-      return response.data;
-    } catch (error) {
-      console.error('Leaderboard fetch failed', error);
-      throw error;
-    }
+    
+    const privateKey = derivePrivateKey(mnemonic);
+    const address = getPublicAddress(privateKey);
+    
+    return {
+      mnemonic,
+      privateKey, 
+      address
+    };
   }
 }
-
-export const apiService = new APIService();
