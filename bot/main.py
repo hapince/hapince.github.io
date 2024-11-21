@@ -38,7 +38,7 @@ async def start(update: Update, context):
 
 def main():
     # 创建应用
-    app = Application.builder().token('7845497963:AAGAo71SOwRLk7653N1ZYoizKbuXsB8h03k').build()
+    app = Application.builder().token('').build()
     
     # 添加处理程序
     app.add_handler(CommandHandler("start", start))
