@@ -4,9 +4,11 @@ import './index.css';
 import App from './App';
 import { TelegramProvider } from './context/TelegramContext';
 
-const root = ReactDOM.createRoot(
-  document.getElementById('root') as HTMLElement
-);
+const rootElement = document.getElementById('root');
+if (!rootElement) {
+  throw new Error('Root element not found');
+}
+const root = ReactDOM.createRoot(rootElement);
 
 root.render(
   <React.StrictMode>
