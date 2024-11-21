@@ -1,52 +1,279 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Medieval Knight Duel</title>
-  <link rel="stylesheet" href="styles.css">
-  <script src="game.js" defer></script>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-</head>
-<body>
-  <div id="app">
-    <!-- Main Menu -->
-    <div id="main-menu" class="menu-screen">
-      <h1>Medieval Knight Duel</h1>
-      <button id="start-game">Start Game</button>
-      <button id="view-rules">Rules</button>
-      <button id="leaderboard">Leaderboard</button>
-    </div>
+import React, { useState, useEffect, useCallback } from 'react';
+import { Sword, Shield, Heart, Zap, User, Trophy } from 'lucide-react';
 
-    <!-- Duel Screen -->
-    <div id="duel-screen" class="game-screen hidden">
-      <div class="knight-container">
-        <div class="knight-info">
-          <div class="health-bar"><span class="health"></span></div>
-          <div class="energy-bar"><span class="energy"></span></div>
-        </div>
-        <div class="knight" id="player-knight"></div>
-      </div>
-      <div class="knight-container">
-        <div class="knight-info">
-          <div class="health-bar"><span class="health"></span></div>
-          <div class="energy-bar"><span class="energy"></span></div>
-        </div>
-        <div class="knight" id="opponent-knight"></div>
-      </div>
-      <div class="action-buttons">
-        <button id="attack-btn">Attack</button>
-        <button id="defend-btn">Defend</button>
-        <button id="dodge-btn">Dodge</button>
-      </div>
-    </div>
+// Telegram Web App Integration
+const initTelegramWebApp = () => {
+  if (window.Telegram && window.Telegram.WebApp) {
+    const WebApp = window.Telegram.WebApp;
+    WebApp.ready();
+    WebApp.expand();
+    return WebApp;
+  }
+  return null;
+};
 
-    <!-- Leaderboard -->
-    <div id="leaderboard-screen" class="menu-screen hidden">
-      <h2>Leaderboard</h2>
-      <div id="leaderboard-list"></div>
-      <button id="back-to-menu">Back to Menu</button>
+// Game Configuration
+const GAME_STATES = {
+  MENU: 'menu',
+  SINGLE_PLAYER: 'single_player',
+  MULTIPLAYER: 'multiplayer',
+  LEADERBOARD: 'leaderboard',
+  RULES: 'rules'
+};
+
+const ACTIONS = {
+  ATTACK: 'attack',
+  DEFEND: 'defend',
+  DODGE: 'dodge'
+};
+
+const MedievalKnightDuel = () => {
+  // Telegram Web App state
+  const [webApp, setWebApp] = useState(null);
+  const [userId, setUserId] = useState(null);
+  const [username, setUsername] = useState(null);
+
+  // Game state
+  const [gameState, setGameState] = useState(GAME_STATES.MENU);
+  const [player, setPlayer] = useState({
+    health: 100,
+    energy: 100,
+    name: 'Knight'
+  });
+  const [opponent, setOpponent] = useState({
+    health: 100,
+    energy: 100,
+    name: 'AI Knight'
+  });
+
+  // Initialize Telegram Web App
+  useEffect(() => {
+    const app = initTelegramWebApp();
+    if (app) {
+      setWebApp(app);
+      
+      // Extract user data
+      const initData = app.initDataUnsafe;
+      if (initData.user) {
+        setUserId(initData.user.id);
+        setUsername(initData.user.username || 'Anonymous Knight');
+      }
+    }
+  }, []);
+
+  // Game Logic
+  const performAction = useCallback((playerAction) => {
+    // Simplified combat logic
+    const aiAction = Object.values(ACTIONS)[Math.floor(Math.random() * 3)];
+    
+    let playerDamage = 0;
+    let opponentDamage = 0;
+
+    // Basic combat resolution
+    switch(playerAction) {
+      case ACTIONS.ATTACK:
+        if (aiAction === ACTIONS.DEFEND) {
+          playerDamage = 10;
+        } else if (aiAction === ACTIONS.DODGE) {
+          opponentDamage = 20;
+        } else {
+          opponentDamage = 30;
+        }
+        break;
+      case ACTIONS.DEFEND:
+        if (aiAction === ACTIONS.ATTACK) {
+          opponentDamage = 5;
+        }
+        break;
+      case ACTIONS.DODGE:
+        if (aiAction === ACTIONS.ATTACK) {
+          playerDamage = 5;
+        }
+        break;
+    }
+
+    // Update health
+    setPlayer(prev => ({
+      ...prev,
+      health: Math.max(0, prev.health - playerDamage),
+      energy: Math.max(0, prev.energy - 10)
+    }));
+
+    setOpponent(prev => ({
+      ...prev,
+      health: Math.max(0, prev.health - opponentDamage),
+      energy: Math.max(0, prev.energy - 10)
+    }));
+  }, []);
+
+  // Render Game Screens
+  const renderMenu = () => (
+    <div className="flex flex-col items-center justify-center h-full p-4 space-y-4">
+      <h1 className="text-3xl font-bold text-amber-900">Medieval Knight Duel</h1>
+      
+      <div className="space-y-4 w-full max-w-xs">
+        <button 
+          onClick={() => setGameState(GAME_STATES.SINGLE_PLAYER)}
+          className="w-full bg-red-700 text-white p-3 rounded-lg flex items-center justify-center"
+        >
+          <Sword className="mr-2"/> Single Player
+        </button>
+        
+        <button 
+          onClick={() => setGameState(GAME_STATES.MULTIPLAYER)}
+          className="w-full bg-blue-700 text-white p-3 rounded-lg flex items-center justify-center"
+        >
+          <User className="mr-2"/> Multiplayer
+        </button>
+        
+        <button 
+          onClick={() => setGameState(GAME_STATES.RULES)}
+          className="w-full bg-green-700 text-white p-3 rounded-lg flex items-center justify-center"
+        >
+          <Trophy className="mr-2"/> Rules
+        </button>
+        
+        <button 
+          onClick={() => setGameState(GAME_STATES.LEADERBOARD)}
+          className="w-full bg-purple-700 text-white p-3 rounded-lg flex items-center justify-center"
+        >
+          <Trophy className="mr-2"/> Leaderboard
+        </button>
+      </div>
     </div>
-  </div>
-</body>
-</html>
+  );
+
+  const renderDuelScreen = () => (
+    <div className="flex flex-col h-full bg-stone-200">
+      {/* Knights Visualization */}
+      <div className="flex justify-between items-center p-4">
+        {/* Player Knight */}
+        <div className="flex flex-col items-center">
+          <div className="text-xl font-bold">{player.name}</div>
+          <div className="w-32 h-8 bg-gray-300 rounded-full overflow-hidden mt-2">
+            <div 
+              className="h-full bg-red-500" 
+              style={{width: `${player.health}%`}}
+            />
+          </div>
+          <div className="w-32 h-4 bg-gray-300 rounded-full overflow-hidden mt-1">
+            <div 
+              className="h-full bg-blue-500" 
+              style={{width: `${player.energy}%`}}
+            />
+          </div>
+        </div>
+
+        {/* Opponent Knight */}
+        <div className="flex flex-col items-center">
+          <div className="text-xl font-bold">{opponent.name}</div>
+          <div className="w-32 h-8 bg-gray-300 rounded-full overflow-hidden mt-2">
+            <div 
+              className="h-full bg-red-500" 
+              style={{width: `${opponent.health}%`}}
+            />
+          </div>
+          <div className="w-32 h-4 bg-gray-300 rounded-full overflow-hidden mt-1">
+            <div 
+              className="h-full bg-blue-500" 
+              style={{width: `${opponent.energy}%`}}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Action Buttons */}
+      <div className="flex justify-center space-x-4 mt-8">
+        <button 
+          onClick={() => performAction(ACTIONS.ATTACK)}
+          className="bg-red-600 text-white p-3 rounded-lg flex items-center"
+          disabled={player.energy < 10}
+        >
+          <Sword className="mr-2"/> Attack
+        </button>
+        
+        <button 
+          onClick={() => performAction(ACTIONS.DEFEND)}
+          className="bg-blue-600 text-white p-3 rounded-lg flex items-center"
+          disabled={player.energy < 10}
+        >
+          <Shield className="mr-2"/> Defend
+        </button>
+        
+        <button 
+          onClick={() => performAction(ACTIONS.DODGE)}
+          className="bg-green-600 text-white p-3 rounded-lg flex items-center"
+          disabled={player.energy < 10}
+        >
+          <Zap className="mr-2"/> Dodge
+        </button>
+      </div>
+
+      {/* Game End Condition */}
+      {(player.health <= 0 || opponent.health <= 0) && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white p-8 rounded-lg text-center">
+            <h2 className="text-2xl font-bold">
+              {player.health <= 0 ? 'You Lost!' : 'You Won!'}
+            </h2>
+            <button 
+              onClick={() => {
+                // Reset game state
+                setPlayer({health: 100, energy: 100, name: 'Knight'});
+                setOpponent({health: 100, energy: 100, name: 'AI Knight'});
+                setGameState(GAME_STATES.MENU);
+              }}
+              className="mt-4 bg-blue-600 text-white p-2 rounded-lg"
+            >
+              Return to Menu
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+  const renderRules = () => (
+    <div className="p-4 text-center">
+      <h2 className="text-2xl font-bold mb-4">Game Rules</h2>
+      <div className="space-y-4 max-w-md mx-auto text-left">
+        <p>• Each knight starts with 100 health and 100 energy</p>
+        <p>• Actions consume 10 energy points</p>
+        <p>• Attack beats Dodge</p>
+        <p>• Defend reduces incoming damage</p>
+        <p>• Dodge can completely avoid an attack</p>
+        <button 
+          onClick={() => setGameState(GAME_STATES.MENU)}
+          className="mt-4 bg-blue-600 text-white p-2 rounded-lg"
+        >
+          Back to Menu
+        </button>
+      </div>
+    </div>
+  );
+
+  const renderLeaderboard = () => (
+    <div className="p-4 text-center">
+      <h2 className="text-2xl font-bold mb-4">Leaderboard</h2>
+      <p>Leaderboard functionality to be implemented with Telegram Bot API</p>
+      <button 
+        onClick={() => setGameState(GAME_STATES.MENU)}
+        className="mt-4 bg-blue-600 text-white p-2 rounded-lg"
+      >
+        Back to Menu
+      </button>
+    </div>
+  );
+
+  // Main Render
+  return (
+    <div className="h-screen bg-stone-100 text-gray-900 flex flex-col">
+      {gameState === GAME_STATES.MENU && renderMenu()}
+      {gameState === GAME_STATES.SINGLE_PLAYER && renderDuelScreen()}
+      {gameState === GAME_STATES.RULES && renderRules()}
+      {gameState === GAME_STATES.LEADERBOARD && renderLeaderboard()}
+    </div>
+  );
+};
+
+export default MedievalKnightDuel;
