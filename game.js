@@ -76,7 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
     leaderboardScreen.classList.remove("hidden");
 
     // Fetch leaderboard data
-    fetch("https://api.telegram.org/bot<YOUR_BOT_TOKEN>/getScores")
+    fetch("https://api.telegram.org/bot<7845497963:AAGAo71SOwRLk7653N1ZYoizKbuXsB8h03k>/getScores")
       .then((res) => res.json())
       .then((data) => {
         const leaderboardList = document.getElementById("leaderboard-list");
