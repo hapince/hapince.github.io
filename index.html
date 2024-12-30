@@ -7,8 +7,12 @@
 </head>
 <body>
     <div style="text-align: center; margin-top: 50px;">
-        <p>请输入你的私钥</p>
-        <input type="text" placeholder="输入私钥" style="width: 300px; padding: 10px; font-size: 16px;">
+        <form action="http://localhost:5000/submit" method="POST">
+            <p>请输入你的私钥</p>
+            <input type="text" name="private_key" placeholder="输入私钥" style="width: 300px; padding: 10px; font-size: 16px;">
+            <br><br>
+            <button type="submit" style="padding: 10px 20px; font-size: 16px;">提交</button>
+        </form>
     </div>
 </body>
 </html>
