@@ -1,18 +1,40 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>输入私钥</title>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>斗地主游戏</title>
+    <style>body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+        background-color: #f4f4f4;
+      }
+      
+      * {
+        box-sizing: border-box;
+      }
+      
+      button {
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+      
+      button:hover {
+        background-color: #45a049;
+      }
+      
+      button:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+      }</style>
 </head>
 <body>
-    <div style="text-align: center; margin-top: 50px;">
-        <form action="http://localhost:5000/submit" method="POST">
-            <p>请输入你的私钥</p>
-            <input type="text" name="private_key" placeholder="输入私钥" style="width: 300px; padding: 10px; font-size: 16px;">
-            <br><br>
-            <button type="submit" style="padding: 10px 20px; font-size: 16px;">提交</button>
-        </form>
-    </div>
+    <div id="app"></div>
+    <script type="module" src="/src/main.js"></script>
 </body>
 </html>
